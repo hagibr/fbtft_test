@@ -27,7 +27,7 @@ class Draw:
 	def rect(self, color, rect, width=0):
 		if (width==0):
 			for y in range(rect.top, rect.top + rect.height):
-				self.fb.hline(rect.left, y, rect.width, color)
+				self.fb.hline(rect.left, y, int(rect.width), color)
 		else:
 			self.line(color, (rect.left, rect.top), (rect.left + rect.width, rect.top))
 			self.line(color, (rect.left, rect.top + rect.height), (rect.left + rect.width, rect.top + rect.height))
@@ -41,7 +41,7 @@ class Draw:
 #			end_pos = start_pos
 #			start_pos = tmp
 
-#		print "line(%s, %r, %r)" % (hex(color), start_pos, end_pos)
+#		print("line(%s, %r, %r)" % (hex(color), start_pos, end_pos))
 
 		# vertical ?
 		if (end_pos[0] - start_pos[0]) == 0:
@@ -64,10 +64,10 @@ class Draw:
 		else:
 			b = 1.0 * end_pos[1] / (m*end_pos[0])
 
-#		print "%sx + %s = y" % (m,b)
+#		print("%sx + %s = y" % (m,b))
 
 		for i in range(start_pos[0], end_pos[0]+1):
-			print "%s,%s" % (i, int(round(m*i+b)))
+			print("%s,%s" % (i, int(round(m*i+b))))
 			self.fb.putpixel(i, \
 			int(round(m*i+b)), \
 			color)
@@ -78,7 +78,7 @@ class Draw:
 class BaseGFX:
 	
 	def putpixel(self, x, y, color):
-#		print "\nputpixel(%s, %s, %r)" % (x,y,bin(color))
+#		print("\nputpixel(%s, %s, %r)" % (x,y,bin(color)))
 		if (x < 0 or x > self.xres-1):
 			raise ValueError("Illegal x value: %r" % x)
 		if (y < 0 or y > self.yres-1):
@@ -90,15 +90,15 @@ class BaseGFX:
 
 			self.fbp.seek(byteoffset)
 			byte = struct.unpack("B", self.fbp.read_byte())[0]
-#			print "  byteoffset: %r" % byteoffset
-#			print "  byte: %r" % bin(byte)
+#			print("  byteoffset: %r" % byteoffset)
+#			print("  byte: %r" % bin(byte))
 			
 			if (color == 0):
 				byte &= ~(1 << (7-(bitoffset % 8)))
 			else:
-#				print "  bitoffset: %r" % bitoffset
-#				print "  bit pos: %r"  % (7-(bitoffset % 8))
-#				print "  bit mask: %r" % bin(1 << (7-(bitoffset % 8)))
+#				print("  bitoffset: %r" % bitoffset)
+#				print("  bit pos: %r"  % (7-(bitoffset % 8)))
+#				print("  bit mask: %r" % bin(1 << (7-(bitoffset % 8))))
 				byte |= (1 << (7-(bitoffset % 8)))
 			self.fbp.seek(byteoffset)
 			self.fbp.write(struct.pack("B", byte))
@@ -106,7 +106,7 @@ class BaseGFX:
 		elif (self.bits_per_pixel == 16):
 			offset = ((x + self.xoffset) * self.bytes_per_pixel
 					+ (y + self.yoffset) * self.line_length)
-			self.fbp.seek(offset)
+			self.fbp.seek(int(offset))
 			self.fbp.write(struct.pack("H", color))
 		else:
 			raise ValueError("%s bits per pixel is not supported" % self.bits_per_pixel)
@@ -124,7 +124,7 @@ class BaseGFX:
 			colstr = struct.pack("H", color)
 			offset = ((x + self.xoffset) * self.bytes_per_pixel
 					+ (y + self.yoffset) * self.line_length)
-			self.fbp.seek(offset)
+			self.fbp.seek(int(offset))
 			for i in range(0, length):
 				self.fbp.write(colstr)
 		else:
@@ -141,14 +141,14 @@ class BaseGFX:
 			self.fbp.write(buf)
 		elif (self.bits_per_pixel == 16):
 			colstr = struct.pack("H", color)
-			buf = ''
+			buf = (self.screensize//2)*colstr
 			self.fbp.seek(0)
-			for i in range(0, self.screensize/2):
-				buf += colstr
+			# for i in range(0, self.screensize/2):
+			# 	buf += colstr
 			self.fbp.write(buf)
 		else:
-			for y in range(0, self.yres):
-				self.hline(0, y, self.xres, color)
+			for y in range(0, int(self.yres)):
+				self.hline(0, y, int(self.xres), color)
 
 	def putchar(self, x, y, ascii, color, size=1):
 		font = ascii_5x7_font(ascii)
@@ -165,9 +165,9 @@ class BaseGFX:
 
 	def putstr(self, x, y, str, color, size=1):
 		if (x == -1):
-			x = (self.xres - self.str_width(str)*size) / 2
+			x = (self.xres - self.str_width(str)*size) // 2
 		if (y == -1):
-			y = (self.yres - 8*size) / 2
+			y = (self.yres - 8*size) // 2
 		for c in str:
 			(x, y) = self.putchar(x, y, ord(c), color, size)
 

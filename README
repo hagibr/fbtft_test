@@ -1,3 +1,7 @@
+Based on project https://github.com/notro/fbtft_test
+I've simplified some things, removed unused files and adapted to python3
+
+Original README:
 fbtft_test
 ==========
 
